@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 
+from utils import PositionalEmbedding
+
 class FullyConnected(nn.Module):
     def __init__(self, embedding_dim, fully_connected_dim):
         super(FullyConnected, self).__init__()
@@ -30,31 +32,6 @@ class LayerNorm(torch.nn.Module):
         normalized = (x - mean) / (std + self.eps)
         
         return self.scale * normalized + self.bias
-
-class PositionalEmbedding(nn.Module):
-    def __init__(self, d_model, max_seq_len=50):
-        super().__init__()
-        self.embed_dim = int(d_model / 2)
-        self.row_embed = nn.Embedding(max_seq_len, self.embed_dim)
-        self.col_embed = nn.Embedding(max_seq_len, self.embed_dim)
-
-    def reset_parameters(self):
-        nn.init.uniform_(self.row_embed.weight)
-        nn.init.uniform_(self.col_embed.weight)
-
-    def forward(self, x):
-        h, w = x.size()[-2:]
-        
-        i = torch.arange(w, device=x.device)
-        j = torch.arange(h, device=x.device)
-        
-        x_embed = self.col_embed(i) # w, embed_dim
-        y_embed = self.row_embed(j) # h, embed_dim
-
-        pos = torch.cat([x_embed.unsqueeze(0).repeat(h,1,1),
-                         y_embed.unsqueeze(1).repeat(1,w,1)
-                         ], dim=-1).permute(2,0,1).unsqueeze(0).repeat(x.shape[0],1,1,1)
-        return pos
 
 class MultiHeadAttention(nn.Module):
     def __init__(self, num_heads, d_model, dropout_rate=0.1, **kwargs):
