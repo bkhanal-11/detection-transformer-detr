@@ -83,6 +83,8 @@ class ResNet50(nn.Module):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(2048, num_classes)
+        
+        self.num_channels = 2048
 
     def forward(self, x):
         x = self.conv1(x)

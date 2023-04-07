@@ -13,9 +13,10 @@ class DETR(nn.Module):
         # backbone network
         self.backbone = ResNet50()
         self.backbone.layer4 = nn.Identity()
+        self.input_proj = nn.Conv2d(self.backbone.num_channels, d_model, kernel_size=1)
 
         # positional encoding
-        self.position_embedding = PositionalEmbedding(d_model)
+        self.position_embedding = PositionalEmbedding(d_model // 2)
 
         # transformer encoder
         self.transformer = Transformer(num_encoder_layers, num_decoder_layers, d_model, num_heads, dff, input_vocab_size, target_vocab_size, max_seq_len)
