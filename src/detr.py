@@ -7,7 +7,7 @@ from transformer import Transformer
 from utils import PositionalEmbedding
 
 class DETR(nn.Module):
-    def __init__(self, num_classes, num_encoder_layers, num_decoder_layers, d_model, num_heads, dff, input_vocab_size, target_vocab_size, max_seq_len):
+    def __init__(self, num_classes, num_encoder_layers, num_decoder_layers, d_model, num_heads, dff):
         super().__init__()
 
         # backbone network
@@ -19,7 +19,7 @@ class DETR(nn.Module):
         self.position_embedding = PositionalEmbedding(d_model // 2)
 
         # transformer encoder
-        self.transformer = Transformer(num_encoder_layers, num_decoder_layers, d_model, num_heads, dff, input_vocab_size, target_vocab_size, max_seq_len)
+        self.transformer = Transformer(num_encoder_layers, num_decoder_layers, d_model, num_heads, dff)
 
         # object queries
         self.query_embed = nn.Embedding(num_classes, d_model)
@@ -44,9 +44,10 @@ class DETR(nn.Module):
         # class and box predictions
         class_predictions = self.class_embed(decoded_features)
         bbox_predictions = self.bbox_embed(decoded_features).sigmoid()
+        
+        out = {'pred_logits': class_predictions[-1], 'pred_boxes': bbox_predictions[-1]}
 
-        return class_predictions[-1], bbox_predictions[-1]
-
+        return out
 class MLP(nn.Module):
     """ Very simple multi-layer perceptron (also called FFN)"""
 
