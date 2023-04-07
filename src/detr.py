@@ -39,13 +39,13 @@ class DETR(nn.Module):
         encoded_features = self.position_embedding(flattened_features)
 
         # transformer 
-        decoded_features = self.transformer(self.input_proj(backbone_features), self.query_embed.weight, encoded_features)[0]
+        decoded_features = self.transformer(self.input_proj(backbone_features), self.query_embed.weight, encoded_features[-1])[0]
         
         # class and box predictions
-        class_predictions = self.class_embed(decoded_features).sigmoid()
+        class_predictions = self.class_embed(decoded_features)
         bbox_predictions = self.bbox_embed(decoded_features).sigmoid()
 
-        return class_predictions, bbox_predictions
+        return class_predictions[-1], bbox_predictions[-1]
 
 class MLP(nn.Module):
     """ Very simple multi-layer perceptron (also called FFN)"""
